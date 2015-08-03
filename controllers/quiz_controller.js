@@ -1,5 +1,6 @@
-var models = require('../models/models.js');
 
+var models = require('../models/models.js');
+//Get /Quizes
 //Autoload - factoriza el código si ruta incluye :quizId
 exports.load = function (req, res , next, quizId){
     models.Quiz.find(quizId).then(
@@ -11,27 +12,39 @@ exports.load = function (req, res , next, quizId){
     }
     ).catch(function(error) { next(error);});
 };
-//Get /Quizes
-exports.index =function(req , res){
-    models.Quiz.findAll().then(
-        function(quizes){
-        res.render('quizes/index', { quizes:quizes});
+//get busqueda
+exports.index = function(req, res){
+    if(req.query.search) {
+        var filtro = (req.query.search || '').replace(" ", "%");
+        models.Quiz.findAll({where:["pregunta like ?", '%'+filtro+'%'],order:'pregunta              ASC'}).then(function(quizes){
+            res.render('quizes/index', {quizes: quizes});
+        }).catch(function(error) { next(error);});
+
+    } else {
+
+        models.Quiz.findAll().then(function(quizes){
+            res.render('quizes/index', {quizes: quizes});
+        }).catch(function(error) { next(error);});
         }
-   ).catch(function (error) { next(error);})
-};
+    };
 //GET /quizes/:id
 exports.show = function (req ,res){
-        res.render('quizes/show',{ quiz:req.quiz });
+    models.Quiz.find(req.params.quizId).then(function(quiz){
+        res.render('quizes/show',{ quiz:quiz });
+    })
 };
 //GET /quizes/:id/answer
 exports.answer = function(req, res){
-    var resultado = 'Incorrecto';
-    if(req.query.respuesta === req.quiz.respuesta){
-        resultado = 'Correcto';
+  models.Quiz.find( req.params.quizId).then(function(quiz){
+    if(req.query.respuesta == quiz.respuesta){
+    res.render('quizes/answer',
+               {quiz:quiz, respuesta:'Correcto'});
+    }else {
+        res.render('quizes/answer',
+                   {quiz:quiz, respuesta:'Incorrecto'});
     }
-        res.render('quizes/answer',{quiz: req.quiz, respuesta:resultado });
+  })
 };
-
 exports.author = function(req,res){
     res.render('quizes/author');
 };
