@@ -48,3 +48,18 @@ exports.answer = function(req, res){
 exports.author = function(req,res){
     res.render('quizes/author');
 };
+//agregando el controlador new
+exports.new = function(req,res){
+    var quiz = models.Quiz.build( // crea objeto quiz
+        {pregunta:"Pregunta", respuesta: "Respuesta"}
+    );
+    res.render('quizes/new',{quiz:quiz});
+};
+//agregando el controlador create
+exports.create = function (req, res){
+    var quiz = models.Quiz.build(req.body.quiz);
+    //guarda en DB los Campos pregunta y respuesta de quiz
+    quiz.save({fields: ["pregunta", "respuesta"]}).then(function(){
+        res.redirect('/quizes');    
+    })//Redirección HTTP (URL relativo) Lista de preguntas
+};
