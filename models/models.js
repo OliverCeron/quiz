@@ -13,7 +13,7 @@ var storage = process.env.DATABASE_STORAGE;
 //carga modelo ORM
 var Sequelize = require('sequelize');
 //usar BD SQLite o Postgres
-var sequelize = new Sequelize(DB_name, user, pwd,
+/*var sequelize = new Sequelize(DB_name, user, pwd,
     {   dialect:  protocol,
         protocol: protocol,
         port:     port,
@@ -22,7 +22,7 @@ var sequelize = new Sequelize(DB_name, user, pwd,
         omitNull: true  //solo Postgres
         
     }
-);
+);*/
 
 //usar SBDD SQLITE
 var sequelize = new Sequelize(null, null , null, 
@@ -32,9 +32,10 @@ var sequelize = new Sequelize(null, null , null,
 var Quiz = sequelize.import(path.join(__dirname,'quiz'));
 exports.Quiz = Quiz;//exportar definición de tabla Quiz
 //sequelize.sync() crea e inicializa tabla de preguntas en DB
-sequelize.sync().success(function(){
+//cambiando el código .success por .then
+sequelize.sync().then(function(){
     //success(..) ejecuta el manejador una vez creada la tabla 
-    Quiz.count().success(function(count){
+    Quiz.count().then(function(count){
       if(count === 0 ){//la tabla se inicializa solo si está vacía
         Quiz.create({pregunta:'Capital de Italia',
                 respuesta: 'Roma'
@@ -42,7 +43,7 @@ sequelize.sync().success(function(){
         Quiz.create({pregunta: 'Capital de Portugal',
                      respuesta:'Lisboa'
                     })
-        .success(function(){console.log('Base de datos inicializada')});
+        .then(function(){console.log('Base de datos inicializada')});
       };
       });
           
